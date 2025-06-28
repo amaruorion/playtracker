@@ -6,6 +6,10 @@ class PlayTracker {
         this.pausedTime = 0;
         this.isRunning = false;
         this.isPaused = false;
+        this.currentRoom = null;
+        this.lastUpdated = 0;
+        this.syncInterval = null;
+        this.serverData = null;
         
         this.initializeElements();
         this.loadData();
@@ -22,6 +26,10 @@ class PlayTracker {
         this.clearBtn = document.getElementById('clear-data');
         this.exportBtn = document.getElementById('export-data');
         this.playTable = document.getElementById('play-table');
+        this.roomIdInput = document.getElementById('room-id');
+        this.joinRoomBtn = document.getElementById('join-room');
+        this.createRoomBtn = document.getElementById('create-room');
+        this.roomStatusText = document.getElementById('room-status-text');
     }
     
     setupEventListeners() {
@@ -46,6 +54,14 @@ class PlayTracker {
                     nameCell.blur();
                 }
             });
+        });
+        
+        this.joinRoomBtn.addEventListener('click', () => this.joinRoom());
+        this.createRoomBtn.addEventListener('click', () => this.createRoom());
+        this.roomIdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.joinRoom();
+            }
         });
     }
     
@@ -123,7 +139,7 @@ class PlayTracker {
     
     addTimeToPlayer(playerIndex, milliseconds) {
         const today = new Date().getDay();
-        const dayIndex = today === 0 ? 6 : today - 1; // Convert Sunday=0 to Sunday=6, Monday=1 to Monday=0, etc.
+        const dayIndex = today === 0 ? 6 : today - 1;
         
         const currentData = this.getStoredData();
         if (!currentData.players[playerIndex].days[dayIndex]) {
@@ -165,25 +181,56 @@ class PlayTracker {
     
     getStoredData() {
         const defaultData = {
-            players: []
+            players: [],
+            lastUpdated: Date.now()
         };
         
         for (let i = 0; i < 5; i++) {
             defaultData.players.push({
                 name: `Player ${i + 1}`,
-                days: [0, 0, 0, 0, 0, 0, 0] // Mon, Tue, Wed, Thu, Fri, Sat, Sun
+                days: [0, 0, 0, 0, 0, 0, 0]
             });
+        }
+        
+        if (this.currentRoom && this.serverData) {
+            return this.serverData;
         }
         
         const stored = localStorage.getItem('playTrackerData');
         return stored ? JSON.parse(stored) : defaultData;
     }
     
-    saveData(data) {
-        localStorage.setItem('playTrackerData', JSON.stringify(data));
+    async saveData(data) {
+        data.lastUpdated = Date.now();
+        this.lastUpdated = data.lastUpdated;
+        
+        if (this.currentRoom) {
+            try {
+                const response = await fetch(`/api/rooms/${this.currentRoom}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    this.serverData = result.data;
+                } else {
+                    console.error('Failed to save to server');
+                    localStorage.setItem('playTrackerData', JSON.stringify(data));
+                }
+            } catch (error) {
+                console.error('Error saving to server:', error);
+                localStorage.setItem('playTrackerData', JSON.stringify(data));
+            }
+        } else {
+            localStorage.setItem('playTrackerData', JSON.stringify(data));
+        }
     }
     
-    loadData() {
+    async loadData() {
         const data = this.getStoredData();
         
         const playerNames = document.querySelectorAll('.player-name');
@@ -195,9 +242,21 @@ class PlayTracker {
         this.updatePlayerDropdown();
     }
     
-    clearAllData() {
+    async clearAllData() {
         if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
-            localStorage.removeItem('playTrackerData');
+            const defaultData = {
+                players: [],
+                lastUpdated: Date.now()
+            };
+            
+            for (let i = 0; i < 5; i++) {
+                defaultData.players.push({
+                    name: `Player ${i + 1}`,
+                    days: [0, 0, 0, 0, 0, 0, 0]
+                });
+            }
+            
+            await this.saveData(defaultData);
             
             const playerNames = document.querySelectorAll('.player-name');
             playerNames.forEach((nameCell, index) => {
@@ -237,8 +296,125 @@ class PlayTracker {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
     }
+    
+    async createRoom() {
+        try {
+            const response = await fetch('/api/create-room', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                this.roomIdInput.value = result.roomId;
+                await this.joinRoom();
+            } else {
+                alert('Failed to create room');
+            }
+        } catch (error) {
+            console.error('Error creating room:', error);
+            alert('Error creating room. Please try again.');
+        }
+    }
+    
+    async joinRoom() {
+        const roomId = this.roomIdInput.value.trim().toUpperCase();
+        
+        if (!roomId) {
+            alert('Please enter a room ID');
+            return;
+        }
+        
+        try {
+            const existsResponse = await fetch(`/api/rooms/${roomId}/exists`);
+            const existsResult = await existsResponse.json();
+            
+            if (!existsResult.exists) {
+                alert('Room not found. Please check the room ID or create a new room.');
+                return;
+            }
+            
+            const response = await fetch(`/api/rooms/${roomId}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.currentRoom = roomId;
+                this.serverData = data;
+                this.lastUpdated = data.lastUpdated || 0;
+                
+                this.updateRoomStatus(true, roomId);
+                this.loadData();
+                this.startSyncInterval();
+                
+                localStorage.setItem('currentRoom', roomId);
+            } else {
+                alert('Failed to join room');
+            }
+        } catch (error) {
+            console.error('Error joining room:', error);
+            alert('Error joining room. Please try again.');
+        }
+    }
+    
+    updateRoomStatus(connected, roomId = null) {
+        const statusElement = this.roomStatusText.parentElement;
+        
+        if (connected && roomId) {
+            this.roomStatusText.textContent = `Connected to room: ${roomId}`;
+            statusElement.classList.add('connected');
+        } else {
+            this.roomStatusText.textContent = 'Not connected to room';
+            statusElement.classList.remove('connected');
+        }
+    }
+    
+    startSyncInterval() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+        }
+        
+        this.syncInterval = setInterval(async () => {
+            if (this.currentRoom) {
+                await this.syncWithServer();
+            }
+        }, 5000);
+    }
+    
+    async syncWithServer() {
+        if (!this.currentRoom) return;
+        
+        try {
+            const response = await fetch(`/api/rooms/${this.currentRoom}/sync`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ lastUpdated: this.lastUpdated })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                
+                if (result.needsUpdate) {
+                    this.serverData = result.data;
+                    this.lastUpdated = result.data.lastUpdated;
+                    this.loadData();
+                }
+            }
+        } catch (error) {
+            console.error('Sync error:', error);
+        }
+    }
+    
+    async initializeFromStorage() {
+        const savedRoom = localStorage.getItem('currentRoom');
+        if (savedRoom) {
+            this.roomIdInput.value = savedRoom;
+            await this.joinRoom();
+        }
+    }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new PlayTracker();
+document.addEventListener('DOMContentLoaded', async () => {
+    const tracker = new PlayTracker();
+    await tracker.initializeFromStorage();
 });
