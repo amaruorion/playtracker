@@ -10,19 +10,6 @@
     <div class="container">
         <h1>Play Tracker</h1>
         
-        <div class="room-section">
-            <div class="room-controls">
-                <div class="room-input-group">
-                    <input type="text" id="room-id" placeholder="Enter Room ID" maxlength="8">
-                    <button id="join-room">Join Room</button>
-                </div>
-                <button id="create-room">Create New Room</button>
-                <div class="room-status">
-                    <span id="room-status-text">Not connected to room</span>
-                </div>
-            </div>
-        </div>
-        
         <div class="timer-section">
             <div class="player-selection">
                 <label for="player-select">Select Player:</label>
@@ -121,6 +108,14 @@
         </div>
     </div>
     
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <!-- Firebase configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Main application script -->
     <script src="script.js"></script>
 </body>
 </html>

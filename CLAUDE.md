@@ -4,28 +4,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a client-side web application for tracking playtime across multiple players and days of the week. The application consists of three main files that work together to provide a complete time tracking solution.
+This is a web application for tracking playtime across multiple players and days of the week with real-time multi-device synchronization using Firebase Realtime Database. All users share the same global database.
 
 ## Development Setup
 
-This application now includes both client-side and server-side components for multi-user data sharing.
+**Firebase Setup Required:**
+1. Create a Firebase project at https://console.firebase.google.com
+2. Enable Realtime Database in your Firebase project
+3. Update `firebase-config.js` with your Firebase project credentials:
+   - Copy the Firebase config object from your project settings
+   - Replace the placeholder values in `firebase-config.js`
 
-**Server Setup:**
-```bash
-npm install
-npm start
-```
-
-**Development Mode:**
-```bash
-npm run dev  # Uses nodemon for auto-restart
-```
-
-**Client-Only Mode:**
-- Open `index.html` directly in browser (uses localStorage only)
+**Running the Application:**
+- Open `index.html` directly in a web browser
 - Or serve statically: `python -m http.server`
+- No build process or Node.js server required
 
-**Server URL:** http://localhost:3000
+**Database Rules (Firebase Console):**
+```json
+{
+  "rules": {
+    "playtracker": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
+```
 
 ## Architecture
 
@@ -33,20 +38,21 @@ npm run dev  # Uses nodemon for auto-restart
 
 **PlayTracker Class** (`script.js`): Single JavaScript class managing all functionality
 - Timer management with start/pause/stop controls
-- Multi-device data synchronization via server API
-- Room-based data sharing with 8-character room IDs
-- Fallback to localStorage when server unavailable
+- Real-time multi-device synchronization via Firebase
+- Global shared database - all users see the same data
+- Automatic fallback to localStorage when Firebase unavailable
 - Player management (5 players with customizable names)
 - Time tracking across 7 days of the week
 - CSV export functionality
 
-**Express Server** (`server.js`): Node.js backend for data persistence
-- In-memory room storage using Map
-- RESTful API endpoints for room operations
-- Automatic room creation with UUID generation
-- Data synchronization with timestamp-based conflict resolution
+**Firebase Realtime Database**: Cloud-based global data persistence
+- Single shared database at `/playtracker` path
+- Real-time data synchronization across all connected devices
+- Automatic conflict resolution with instant updates
+- Persistent data storage (survives browser restarts)
+- No user isolation - everyone shares the same data
 
-**Data Structure**: Shared between client/server as JSON:
+**Data Structure**: Stored in Firebase as JSON at `/playtracker`:
 ```javascript
 {
   players: [
@@ -55,51 +61,52 @@ npm run dev  # Uses nodemon for auto-restart
       days: [0, 0, 0, 0, 0, 0, 0] // Mon-Sun in milliseconds
     }
   ],
-  lastUpdated: 1234567890123 // Timestamp for sync
+  lastUpdated: 1234567890123 // Timestamp for tracking changes
 }
 ```
 
 **Timer Logic**: Uses `setInterval` with millisecond precision, tracks elapsed time since start, handles pause/resume by storing paused duration.
 
-**Sync Logic**: Polls server every 5 seconds, compares timestamps to determine if local data needs updating.
+**Real-time Sync**: Firebase listeners automatically update all connected devices when any device modifies data.
 
 ### File Organization
 
-- `index.html`: Complete HTML with timer controls, room management, and weekly table
-- `styles.css`: Responsive styling with mobile-first approach, includes room UI styling
-- `script.js`: Single class containing all client logic (~420 lines)
-- `server.js`: Express server with REST API endpoints (~80 lines)
-- `package.json`: Node.js dependencies and npm scripts
+- `index.html`: Complete HTML with timer controls and weekly table
+- `styles.css`: Responsive styling with mobile-first approach
+- `script.js`: Single class containing all client logic (~300 lines)
+- `firebase-config.js`: Firebase project configuration (must be customized)
 
 ### Key Interactions
 
-- Room creation generates 8-character UUID, auto-joins created room
-- Room joining validates existence, loads server data, starts sync timer
+- Application automatically connects to global Firebase database on load
+- Real-time listeners automatically sync changes across all devices
 - Player selection updates `currentPlayer` index
-- Timer operations modify DOM and sync with server/localStorage
-- Table cells update in real-time when sessions complete
-- Player names are editable via `contenteditable` attributes
+- Timer operations modify DOM and sync with Firebase/localStorage
+- Table cells update in real-time when any device adds sessions
+- Player names are editable via `contenteditable` attributes and sync globally
 - Day calculation uses `Date().getDay()` with Sunday=0 converted to array index 6
 
 ### Data Flow
 
-**Multi-User Mode (Server Connected):**
-1. User creates/joins room → validates with server → loads shared data
+**Multi-User Mode (Firebase Connected):**
+1. Page load → connects to global Firebase database → loads shared data
 2. Timer runs → updates display every 10ms
-3. Stop button → saves to server → updates local display
-4. Background sync every 5s → checks for server updates → merges changes
-5. Page load → attempts to reconnect to saved room
+3. Stop button → saves to Firebase → automatically syncs to all devices
+4. Real-time listeners → instantly update all connected devices
+5. Player name changes → sync immediately to all users
 
-**Single-User Mode (Offline):**
+**Single-User Mode (Offline/Firebase unavailable):**
 1. Standard localStorage-based operations
-2. Graceful fallback when server unavailable
+2. Graceful fallback when Firebase configuration missing or network unavailable
 
 ## Development Notes
 
-- Server requires Node.js and npm dependencies (express, cors, uuid)
-- Client works offline with localStorage fallback
+- No server setup required - fully client-side with Firebase backend
+- Requires valid Firebase project configuration in `firebase-config.js`
 - Mobile responsive design included
 - Time format: HH:MM:SS throughout application
 - Supports multiple sessions per day (time accumulates)
-- Room data stored in server memory (not persistent across restarts)
-- Automatic reconnection to saved rooms on page load
+- Real-time synchronization with automatic conflict resolution
+- Data persists permanently in Firebase
+- Global shared database - all users see and modify the same data
+- Clear data button affects all users globally
