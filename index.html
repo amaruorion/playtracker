@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Play Tracker</h1>
+        
+        <div class="timer-section">
+            <div class="player-selection">
+                <label for="player-select">Select Player:</label>
+                <select id="player-select">
+                    <option value="0">Player 1</option>
+                    <option value="1">Player 2</option>
+                    <option value="2">Player 3</option>
+                    <option value="3">Player 4</option>
+                    <option value="4">Player 5</option>
+                </select>
+            </div>
+            
+            <div class="timer-display">
+                <span id="timer">00:00:00</span>
+            </div>
+            
+            <div class="timer-controls">
+                <button id="start-btn">Start</button>
+                <button id="pause-btn" disabled>Pause</button>
+                <button id="stop-btn" disabled>Stop</button>
+            </div>
+        </div>
+        
+        <div class="table-section">
+            <table id="play-table">
+                <thead>
+                    <tr>
+                        <th class="player-header">Player</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                        <th>Sunday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-player="0">
+                        <td class="player-name" contenteditable="true">Player 1</td>
+                        <td class="time-cell" data-day="0">00:00:00</td>
+                        <td class="time-cell" data-day="1">00:00:00</td>
+                        <td class="time-cell" data-day="2">00:00:00</td>
+                        <td class="time-cell" data-day="3">00:00:00</td>
+                        <td class="time-cell" data-day="4">00:00:00</td>
+                        <td class="time-cell" data-day="5">00:00:00</td>
+                        <td class="time-cell" data-day="6">00:00:00</td>
+                    </tr>
+                    <tr data-player="1">
+                        <td class="player-name" contenteditable="true">Player 2</td>
+                        <td class="time-cell" data-day="0">00:00:00</td>
+                        <td class="time-cell" data-day="1">00:00:00</td>
+                        <td class="time-cell" data-day="2">00:00:00</td>
+                        <td class="time-cell" data-day="3">00:00:00</td>
+                        <td class="time-cell" data-day="4">00:00:00</td>
+                        <td class="time-cell" data-day="5">00:00:00</td>
+                        <td class="time-cell" data-day="6">00:00:00</td>
+                    </tr>
+                    <tr data-player="2">
+                        <td class="player-name" contenteditable="true">Player 3</td>
+                        <td class="time-cell" data-day="0">00:00:00</td>
+                        <td class="time-cell" data-day="1">00:00:00</td>
+                        <td class="time-cell" data-day="2">00:00:00</td>
+                        <td class="time-cell" data-day="3">00:00:00</td>
+                        <td class="time-cell" data-day="4">00:00:00</td>
+                        <td class="time-cell" data-day="5">00:00:00</td>
+                        <td class="time-cell" data-day="6">00:00:00</td>
+                    </tr>
+                    <tr data-player="3">
+                        <td class="player-name" contenteditable="true">Player 4</td>
+                        <td class="time-cell" data-day="0">00:00:00</td>
+                        <td class="time-cell" data-day="1">00:00:00</td>
+                        <td class="time-cell" data-day="2">00:00:00</td>
+                        <td class="time-cell" data-day="3">00:00:00</td>
+                        <td class="time-cell" data-day="4">00:00:00</td>
+                        <td class="time-cell" data-day="5">00:00:00</td>
+                        <td class="time-cell" data-day="6">00:00:00</td>
+                    </tr>
+                    <tr data-player="4">
+                        <td class="player-name" contenteditable="true">Player 5</td>
+                        <td class="time-cell" data-day="0">00:00:00</td>
+                        <td class="time-cell" data-day="1">00:00:00</td>
+                        <td class="time-cell" data-day="2">00:00:00</td>
+                        <td class="time-cell" data-day="3">00:00:00</td>
+                        <td class="time-cell" data-day="4">00:00:00</td>
+                        <td class="time-cell" data-day="5">00:00:00</td>
+                        <td class="time-cell" data-day="6">00:00:00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="controls-section">
+            <button id="clear-data">Clear All Data</button>
+            <button id="export-data">Export Data</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

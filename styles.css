@@ -1,0 +1,259 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-size: 2.5rem;
+}
+
+.timer-section {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.player-selection {
+    margin-bottom: 20px;
+}
+
+.player-selection label {
+    font-weight: 600;
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+#player-select {
+    padding: 8px 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    background: white;
+}
+
+.timer-display {
+    margin: 20px 0;
+}
+
+#timer {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #27ae60;
+    font-family: 'Courier New', monospace;
+    background: #ecf0f1;
+    padding: 20px 30px;
+    border-radius: 10px;
+    display: inline-block;
+    min-width: 200px;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.timer-controls button {
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#start-btn {
+    background-color: #27ae60;
+    color: white;
+}
+
+#start-btn:hover:not(:disabled) {
+    background-color: #229954;
+}
+
+#pause-btn {
+    background-color: #f39c12;
+    color: white;
+}
+
+#pause-btn:hover:not(:disabled) {
+    background-color: #d68910;
+}
+
+#stop-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+#stop-btn:hover:not(:disabled) {
+    background-color: #cb4335;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.table-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    overflow-x: auto;
+}
+
+#play-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#play-table th,
+#play-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#play-table th {
+    background-color: #34495e;
+    color: white;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+.player-header {
+    background-color: #2c3e50 !important;
+}
+
+.player-name {
+    background-color: #ecf0f1;
+    font-weight: 600;
+    cursor: text;
+    text-align: left !important;
+    padding-left: 15px !important;
+}
+
+.player-name:hover {
+    background-color: #d5dbdb;
+}
+
+.time-cell {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.time-cell:hover {
+    background-color: #e9ecef;
+}
+
+tbody tr:nth-child(even) .time-cell {
+    background-color: #f1f2f6;
+}
+
+tbody tr:nth-child(even) .time-cell:hover {
+    background-color: #e9ecef;
+}
+
+.controls-section {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.controls-section button {
+    padding: 12px 25px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#clear-data {
+    background-color: #e74c3c;
+    color: white;
+}
+
+#clear-data:hover {
+    background-color: #cb4335;
+}
+
+#export-data {
+    background-color: #3498db;
+    color: white;
+}
+
+#export-data:hover {
+    background-color: #2980b9;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    #timer {
+        font-size: 2rem;
+        padding: 15px 20px;
+        min-width: 150px;
+    }
+    
+    .timer-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .timer-controls button {
+        width: 200px;
+    }
+    
+    .controls-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .controls-section button {
+        width: 200px;
+    }
+    
+    #play-table {
+        font-size: 0.9rem;
+    }
+    
+    #play-table th,
+    #play-table td {
+        padding: 8px 4px;
+    }
+}
