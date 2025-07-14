@@ -9,18 +9,38 @@ This is a web application for tracking playtime across multiple players and days
 ## Development Setup
 
 **Firebase Setup Required:**
-1. Create a Firebase project at https://console.firebase.google.com
-2. Enable Realtime Database in your Firebase project
-3. Update `firebase-config.js` with your Firebase project credentials:
-   - Copy the Firebase config object from your project settings
-   - Replace the placeholder values in `firebase-config.js`
 
-**Running the Application:**
-- Open `index.html` directly in a web browser
-- Or serve statically: `python -m http.server`
-- No build process or Node.js server required
+**Step 1: Create Firebase Project**
+1. Go to https://console.firebase.google.com
+2. Sign in with Google account
+3. Click "Add project" or "Create a project"
+4. Enter project name (e.g., "playtracker")
+5. Disable Google Analytics (optional)
+6. Click "Create project"
 
-**Database Rules (Firebase Console):**
+**Step 2: Enable Realtime Database**
+1. In left sidebar, click "Realtime Database"
+2. Click "Create Database"
+3. Choose location close to your users
+4. Select "Start in test mode"
+5. Database is now created
+
+**Step 3: Get Configuration**
+1. Click gear icon ⚙️ → "Project settings"
+2. Scroll to "Your apps" → click web icon `</>`
+3. App nickname: "Play Tracker"
+4. Don't check Firebase Hosting
+5. Click "Register app"
+6. Copy the firebaseConfig object
+
+**Step 4: Update Configuration File**
+1. Open `firebase-config.js`
+2. Replace the firebaseConfig object with your actual config from Step 3
+3. Keep the initialization lines unchanged
+
+**Step 5: Set Database Rules**
+1. Go to Realtime Database → "Rules" tab
+2. Replace rules with:
 ```json
 {
   "rules": {
@@ -31,6 +51,25 @@ This is a web application for tracking playtime across multiple players and days
   }
 }
 ```
+3. Click "Publish"
+
+**Step 6: Test Setup**
+1. Open `index.html` in web browser
+2. Check Developer Tools (F12) Console for:
+   - No Firebase errors
+   - "Initialized default data in Firebase" (first load)
+   - "Data saved to Firebase" (when using timer)
+3. Test multi-device sync by opening same page in another browser
+
+**Running the Application:**
+- Open `index.html` directly in a web browser
+- Or serve statically: `python -m http.server`
+- No build process or Node.js server required
+
+**Troubleshooting:**
+- **Firebase errors**: Check firebase-config.js values and database URL
+- **No sync**: Verify database rules are published and internet connection
+- **No initialization**: Check Firebase Console → Realtime Database → Data tab for `playtracker` node
 
 ## Architecture
 
